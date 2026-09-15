@@ -1,15 +1,16 @@
-name: Daily Content Engine
+name: Daily Content Pipeline
 
 on:
   schedule:
-    - cron: '0 12 * * *' # Runs daily at 12:00 UTC
+    # 04:00 UTC corresponds to 12:00 AM Midnight EST
+    - cron: '0 4 * * *'
   workflow_dispatch:
 
 jobs:
-  run-engine:
+  run-pipeline:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
+      - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Set up Python
@@ -19,12 +20,13 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          pip install -r requirements.txt
+          pip install google-genai supabase edge-tts requests
 
-      - name: Run Content Generator
+      - name: Execute Content Engine
         env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: |
-          python generate_content.py
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_TOKEN: ${{ secrets.FB_PAGE_TOKEN }}
+        run: python generate_content.py
