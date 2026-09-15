@@ -5,7 +5,7 @@ import edge_tts
 from supabase import create_client, Client
 from google import genai
 
-# Read secrets securely from GitHub Actions environment
+# Read secrets safely from GitHub Actions environment
 supabase_url = os.environ.get("SUPABASE_URL")
 supabase_key = os.environ.get("SUPABASE_KEY")
 gemini_api_key = os.environ.get("GEMINI_API_KEY")
@@ -42,20 +42,23 @@ def main():
     Format output as JSON with two keys: "script" and "caption".
     """
 
-    # Updated to gemini-3.6-flash as requested by the Google API
-    response = ai_client.models.generate_content(
+    # Switched to client.interactions.create with gemini-3.6-flash
+    interaction = ai_client.interactions.create(
         model='gemini-3.6-flash',
-        contents=prompt
+        input=prompt
     )
 
+    # Extract text output using the new Interactions API response attribute
+    response_text = interaction.output_text
+
     try:
-        clean_json = response.text.replace("```json", "").replace("```", "").strip()
+        clean_json = response_text.replace("```json", "").replace("```", "").strip()
         data = json.loads(clean_json)
         script_text = data.get("script", "")
         caption_text = data.get("caption", "")
     except Exception:
         script_text = f"Hot wholesale deal at {address}! Asking price {price}. DM for details."
-        caption_text = response.text
+        caption_text = response_text
 
     # Generate Voiceover Audio
     asyncio.run(generate_voiceover(script_text, f"deal_{deal_id}.mp3"))
