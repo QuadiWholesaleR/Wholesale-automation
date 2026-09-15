@@ -5,7 +5,7 @@ import edge_tts
 from supabase import create_client, Client
 from google import genai
 
-# Read environment variables securely from GitHub Secrets
+# Read secrets securely from GitHub Actions environment
 supabase_url = os.environ.get("SUPABASE_URL")
 supabase_key = os.environ.get("SUPABASE_KEY")
 gemini_api_key = os.environ.get("GEMINI_API_KEY")
@@ -42,9 +42,9 @@ def main():
     Format output as JSON with two keys: "script" and "caption".
     """
 
-    # Using the stable, free model endpoint
+    # Updated to gemini-3.6-flash as requested by the Google API
     response = ai_client.models.generate_content(
-        model='gemini-2.0-flash',
+        model='gemini-3.6-flash',
         contents=prompt
     )
 
