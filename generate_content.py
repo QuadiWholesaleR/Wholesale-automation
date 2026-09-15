@@ -1,15 +1,15 @@
-code_content = """import os
+import os
 import json
 import asyncio
 import edge_tts
 from supabase import create_client, Client
 from google import genai
-- name: Run Content Pipeline
-env:
-GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-run: python generate_content.py
+
+# Read environment variables securely from GitHub Secrets
+supabase_url = os.environ.get("SUPABASE_URL")
+supabase_key = os.environ.get("SUPABASE_KEY")
+gemini_api_key = os.environ.get("GEMINI_API_KEY")
+
 supabase: Client = create_client(supabase_url, supabase_key)
 ai_client = genai.Client(api_key=gemini_api_key)
 
@@ -24,7 +24,7 @@ def main():
     deals = res.data
 
     if not deals:
-        print("No deals found.")
+        print("No deals found marked 'ready_for_marketing'. Exiting.")
         return
 
     deal = deals[0]
@@ -33,15 +33,16 @@ def main():
     price = deal.get("asking_price", "Contact for Price")
     details = deal.get("notes", "")
 
-    prompt = f\"\"\"
+    prompt = f"""
     You are a real estate wholesale marketing expert. Write a high-converting 30-second video script and social caption for this property deal:
     Property Address: {address}
     Wholesale Price: {price}
     Details: {details}
 
     Format output as JSON with two keys: "script" and "caption".
-    \"\"\"
+    """
 
+    # Using the stable, free model endpoint
     response = ai_client.models.generate_content(
         model='gemini-2.0-flash',
         contents=prompt
@@ -56,8 +57,10 @@ def main():
         script_text = f"Hot wholesale deal at {address}! Asking price {price}. DM for details."
         caption_text = response.text
 
+    # Generate Voiceover Audio
     asyncio.run(generate_voiceover(script_text, f"deal_{deal_id}.mp3"))
 
+    # Log generated output back to Supabase
     supabase.table("social_posts").insert({
         "deal_id": deal_id,
         "script": script_text,
@@ -66,13 +69,7 @@ def main():
         "status": "generated"
     }).execute()
 
-    print("Pipeline completed successfully!")
+    print(f"Pipeline successfully generated content for deal {deal_id}!")
 
 if __name__ == "__main__":
     main()
-"""
-
-with open("generate_content.py", "w") as f:
-    f.write(code_content)
-
-print("SUCCESS: generate_content.py created clean with zero formatting errors!")
