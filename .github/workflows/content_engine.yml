@@ -2,7 +2,6 @@ name: Daily Content Pipeline
 
 on:
   schedule:
-    # 04:00 UTC corresponds to 12:00 AM Midnight EST
     - cron: '0 4 * * *'
   workflow_dispatch:
 
@@ -27,6 +26,6 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
-          FB_PAGE_TOKEN: ${{ secrets.FB_PAGE_TOKEN }}
+          FB_PAGE_ID: ${{ secrets.FACEBOOK_PAGE_ID }}
+          FB_PAGE_TOKEN: ${{ secrets.FACEBOOK_ACCESS_TOKEN }}
         run: python generate_content.py

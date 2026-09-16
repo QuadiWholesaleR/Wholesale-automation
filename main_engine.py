@@ -38,7 +38,7 @@ def main():
         try:
             supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
             # Fetch active deals
-            res = supabase.table("properties").select("*").neq("address", "123 Test Ave").execute()
+            res = supabase.table("deals").select("*").neq("address", "123 Test Ave").execute()
             if res.data:
                 properties = res.data
         except Exception as e:
