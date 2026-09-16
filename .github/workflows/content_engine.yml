@@ -2,7 +2,7 @@ name: Daily Content Pipeline
 
 on:
   schedule:
-    - cron: '0 4 * * *'
+    - cron: '0 4 * * *'  # Runs at 12:00 AM Midnight EST
   workflow_dispatch:
 
 jobs:
@@ -19,7 +19,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          pip install google-genai supabase edge-tts requests
+          pip install google-genai supabase edge-tts requests pillow
 
       - name: Execute Content Engine
         env:
