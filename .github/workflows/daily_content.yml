@@ -1,0 +1,34 @@
+name: Daily Content Pipeline
+
+on:
+  schedule:
+    - cron: '0 4 * * *'  # Runs daily at midnight EST
+  workflow_dispatch:
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install supabase requests pillow
+
+      - name: Execute Content Engine
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          FB_PAGE_ID: ${{ secrets.FACEBOOK_PAGE_ID }}
+          FB_PAGE_TOKEN: ${{ secrets.FACEBOOK_ACCESS_TOKEN }}
+          TIKTOK_ACCOUNT_ID: ${{ secrets.TIKTOK_ACCOUNT_ID }}
+          INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
+        run: python generate_content.py
