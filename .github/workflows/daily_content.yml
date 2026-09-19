@@ -1,31 +1,32 @@
-name: Wholesale Real Estate & 5x Content Automation Machine
+name: Wholesale Real Estate Automation & 5x Content Machine
 
 on:
   schedule:
-    - cron: '0 4 * * *'  # Runs automatically at 12:00 AM Midnight EST (04:00 UTC) every day
-  workflow_dispatch:      # Lets you click "Run workflow" from your phone anytime
+    - cron: '0 4 * * *'    # Runs automatically every night at 12:00 AM Midnight EST (04:00 UTC)
+  workflow_dispatch:        # Optional: allows manual trigger for testing
 
 jobs:
-  run-wholesale-machine:
+  run-pipeline:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.10
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: Install Free Dependencies
+      - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install supabase requests pillow edge-tts nest-asyncio
+          pip install supabase requests pillow edge-tts nest-asyncio google-genai
 
-      - name: Execute Full Automation Engine
+      - name: Execute Autonomous Master Engine
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           FB_PAGE_ID: ${{ secrets.FACEBOOK_PAGE_ID }}
           FB_PAGE_TOKEN: ${{ secrets.FACEBOOK_ACCESS_TOKEN }}
         run: |
