@@ -3,7 +3,7 @@ name: Wholesale Real Estate Automation & 5x Content Machine
 on:
   schedule:
     - cron: '0 4 * * *'    # Runs automatically every night at 12:00 AM Midnight EST (04:00 UTC)
-  workflow_dispatch:        # Optional: allows manual trigger for testing
+  workflow_dispatch:        # Allows manual run anytime for testing
 
 jobs:
   run-pipeline:
