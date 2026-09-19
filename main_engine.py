@@ -1,16 +1,37 @@
 # ==============================================================================
-# CLEAR WHOLESALE PROPERTY VENTURES - AUTONOMOUS MASTER ENGINE (main_engine.py)
-# 100% Free Cloud Automation: Supabase + Edge-TTS + Meta Graph API + Gemini
+# CLEAR WHOLESALE PROPERTY VENTURES - 24/7 AUTONOMOUS MASTER ENGINE
+# 100% Free Cloud Automation: Supabase + Edge-TTS + Gemini AI + Meta Graph API
 # ==============================================================================
 import os
+import sys
 import json
 import asyncio
+import subprocess
 import requests
 from datetime import datetime, timezone
 from PIL import Image, ImageDraw, ImageFont
-from supabase import create_client, Client
 
-# --- 1. CREDENTIALS INITIALIZATION ---
+# --- BULLETPROOF GEMINI AI LOADER (Auto-installs if missing) ---
+ai_client = None
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+try:
+    from google import genai
+    if GEMINI_API_KEY:
+        ai_client = genai.Client(api_key=GEMINI_API_KEY)
+        print("🧠 Gemini AI Intelligence Engine connected successfully!")
+except ImportError:
+    try:
+        print("⚡ Installing google-genai on the fly...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "google-genai"])
+        from google import genai
+        if GEMINI_API_KEY:
+            ai_client = genai.Client(api_key=GEMINI_API_KEY)
+            print("🧠 Gemini AI Intelligence Engine connected successfully!")
+    except Exception as e:
+        print(f"ℹ️ Running in resilient rule-based mode: {e}")
+
+# --- SUPABASE & META CREDENTIALS ---
+from supabase import create_client, Client
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
 FB_PAGE_ID = os.environ.get("FB_PAGE_ID") or os.environ.get("FACEBOOK_PAGE_ID")
@@ -18,7 +39,18 @@ FB_PAGE_TOKEN = os.environ.get("FB_PAGE_TOKEN") or os.environ.get("FACEBOOK_ACCE
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY) if SUPABASE_URL and SUPABASE_KEY else None
 
-# --- 2. LEGAL COMPLIANCE AUDIT ---
+def clean_currency_str(val) -> str:
+    """Safely formats any number or string into $XXX,XXX format without crashing."""
+    if not val:
+        return "$0"
+    s = str(val).replace("$", "").replace(",", "").strip()
+    try:
+        num = float(s)
+        return f"${int(num):,}"
+    except Exception:
+        return str(val)
+
+# --- 1. LEGAL COMPLIANCE AUDIT ---
 def audit_legal_monitoring():
     print("🛡️ [1/5] Auditing Real Estate Wholesale Rules across Target Markets...")
     if not supabase: return
@@ -38,7 +70,7 @@ def audit_legal_monitoring():
         except Exception: pass
     print("   ✅ Regulatory audit verified across IN, OH, GA, and TX.")
 
-# --- 3. MULTI-ASSET DISTRESSED LEAD SCAVENGER (OFF-MARKET & 5+ YR OWNERSHIP) ---
+# --- 2. MULTI-ASSET DISTRESSED LEAD SCAVENGER (OFF-MARKET & 5+ YR OWNERSHIP) ---
 def scavenge_distressed_opportunities():
     print("🔍 [2/5] Scavenging Distressed, 5+ Yr High-Equity Portfolios & Free Social Leads...")
     if not supabase: return
@@ -69,7 +101,7 @@ def scavenge_distressed_opportunities():
                 print(f"   ✨ Added Off-Market Seller: {s['full_name']} ({s['property_address']})")
         except Exception: pass
 
-# --- 4. VIP BUYER MATCHING ---
+# --- 3. VIP BUYER MATCHING ---
 def match_deals_to_vip_buyers():
     print("🎯 [3/5] Algorithmic VIP Cash Buyer Matching Engine...")
     if not supabase: return
@@ -92,16 +124,28 @@ def match_deals_to_vip_buyers():
     except Exception as e:
         print(f"   ⚠️ Match sync note: {e}")
 
-# --- 5. 5X DAILY REELS & EDGE-TTS SYNTHESIS ---
+# --- 4. 5X DAILY REELS & EDGE-TTS SYNTHESIS ---
 async def generate_5x_daily_social_machine():
     print("🎬 [4/5] Synthesizing 5x Daily Social Reels, Edge-TTS Audio & High-Converting Cards...")
-    
+
+    # Fetch live deal if exists
+    live_deal = None
+    if supabase:
+        try:
+            d_res = supabase.table("deals").select("*").eq("status", "ready_for_marketing").limit(1).execute()
+            if d_res.data and len(d_res.data) > 0:
+                live_deal = d_res.data[0]
+        except Exception: pass
+
+    deal_addr = live_deal.get("address") if live_deal else "123 Main St, Atlanta, GA"
+    deal_price = clean_currency_str(live_deal.get("asking_price")) if live_deal else "$150,000"
+
     pillars = [
         ("08:00 AM", "🎓 REAL ESTATE MASTERY", "THE 70% WHOLESALE FORMULA",
          "Stop guessing what to offer on distressed real estate! Use the 70 percent formula: ARV times 0.70 minus repairs and your fee. DM 'MATH' for our free sheet!",
          "en-US-ChristopherNeural", "COMMENT 'MATH' FOR FREE SPREADSHEET!"),
-        ("12:00 PM", "🚨 EXCLUSIVE OFF-MARKET DEAL", "EXCLUSIVE CONTRACT ASSIGNMENT",
-         "Attention cash buyers! New off-market contract assignment live in our target market. Deeply discounted for cash investors. DM 'DEAL' for access!",
+        ("12:00 PM", "🚨 EXCLUSIVE OFF-MARKET DEAL", f"DEAL ALERT: {deal_addr}",
+         f"Attention cash buyers! New off-market contract assignment live at {deal_addr} for {deal_price}. Deeply discounted for cash investors. DM 'DEAL' for access!",
          "en-US-ChristopherNeural", "DM 'DEAL' OR EMAIL DEALS@CWPVENTURES.COM"),
         ("04:00 PM", "📊 MARKET INSIGHTS", "WHY MIDWEST CASH FLOW WINS",
          "Why are coastal investors moving capital into Indiana and Ohio? Sub 150k entry points delivering 12 to 15 percent net cap rates! DM 'EXPAND' for our report!",
@@ -140,7 +184,7 @@ async def generate_5x_daily_social_machine():
         draw.rectangle([(80, 240), (width - 80, 320)], fill="#DC2626")
         draw.text((width // 2, 280), tag, fill="#FFFFFF", font=get_font(28), anchor="mm")
         draw.rectangle([(80, 360), (width - 80, 560)], fill="#1E293B", outline="#475569", width=3)
-        draw.text((width // 2, 460), headline, fill="#FEF08A", font=get_font(42), anchor="mm")
+        draw.text((width // 2, 460), headline[:32], fill="#FEF08A", font=get_font(40), anchor="mm")
         draw.rectangle([(80, 1420), (width - 80, 1620)], fill="#059669")
         draw.text((width // 2, 1520), cta, fill="#FFFFFF", font=get_font(34), anchor="mm")
 
@@ -162,7 +206,7 @@ async def generate_5x_daily_social_machine():
             
     print("   ✅ Generated all 5 daily video cards and neural audio voiceovers.")
 
-# --- 6. LIVE META SYNDICATION ---
+# --- 5. LIVE META SYNDICATION ---
 def syndicate_to_social():
     print("📢 [5/5] Meta Graph API Social Syndication...")
     if not FB_PAGE_ID or not FB_PAGE_TOKEN:
@@ -188,7 +232,7 @@ def syndicate_to_social():
 # --- MASTER RUNNER ---
 async def main():
     print("=" * 65)
-    print("🚀 CLEAR WHOLESALE PROPERTY VENTURES - 24/7 AUTOMATION ENGINE")
+    print("🚀 CLEAR WHOLESALE PROPERTY VENTURES - 24/7 AUTONOMOUS MASTER ENGINE")
     print("=" * 65)
     audit_legal_monitoring()
     scavenge_distressed_opportunities()
@@ -201,10 +245,8 @@ async def main():
 
 if __name__ == "__main__":
     try:
-        # Standard execution (GitHub Actions)
         asyncio.run(main())
     except RuntimeError:
-        # Colab / interactive notebook execution
         import nest_asyncio
         nest_asyncio.apply()
         asyncio.run(main())
